@@ -67,7 +67,7 @@ public class FilmController {
             throw new ValidationException("Film release date cannot be earlier then 1895-12-28");
         }
 
-        if (film.getDuration() < 0) {
+        if (film.getDuration() <= 0) {
             log.error("Film duration cannot be negative");
             throw new ValidationException("Film duration cannot be negative");
         }
