@@ -16,21 +16,21 @@ public class UserControllerTest {
 
     @Test
     void update() throws ValidationException, ResourceNotFoundException {
-        User user = User.builder()
-                .login("Userlogin")
-                .name("User name")
-                .email("user@gmail.com")
-                .birthday(LocalDate.of(1986, 6, 18))
-                .build();
+        User user = new User();
+        user.setLogin("Userlogin");
+        user.setName("User name");
+        user.setEmail("user@gmail.com");
+        user.setBirthday(LocalDate.of(1986, 6, 18));
         userController.addUser(user);
-        User updatedUser = User.builder()
-                .id(1)
-                .login("Userlogin")
-                .name("Updated name")
-                .email("user@gmail.com")
-                .birthday(LocalDate.of(1996, 6, 18))
-                .build();
+
+        User updatedUser = new User();
+        updatedUser.setId(1);
+        updatedUser.setLogin("Userlogin");
+        updatedUser.setName("Updated name");
+        updatedUser.setEmail("user@gmail.com");
+        updatedUser.setBirthday(LocalDate.of(1996, 6, 18));
         userController.updateUser(updatedUser);
+
         User savedUser = userController.getUsers().get(0);
         assertEquals(1, userController.getUsers().size(), "Number of users in not equal");
         assertEquals(updatedUser, savedUser, "User is not equal");
@@ -38,20 +38,20 @@ public class UserControllerTest {
 
     @Test
     void updateWithUnknownId() throws ValidationException {
-        User user = User.builder()
-                .login("Userlogin")
-                .name("User name")
-                .email("user@gmail.com")
-                .birthday(LocalDate.of(1996, 6, 18))
-                .build();
+        User user = new User();
+        user.setLogin("Userlogin");
+        user.setName("User name");
+        user.setEmail("user@gmail.com");
+        user.setBirthday(LocalDate.of(1996, 6, 18));
         userController.addUser(user);
-        User updatedUser = User.builder()
-                .id(222)
-                .login("Userlogin")
-                .name("Updated name")
-                .email("user@gmail.com")
-                .birthday(LocalDate.of(2022, 1, 1))
-                .build();
+
+        User updatedUser = new User();
+        updatedUser.setId(222);
+        updatedUser.setLogin("Userlogin");
+        updatedUser.setName("Updated name");
+        updatedUser.setEmail("user@gmail.com");
+        updatedUser.setBirthday(LocalDate.of(2022, 1, 1));
+
         assertThrows(ResourceNotFoundException.class, () -> userController.updateUser(updatedUser), "User with id " + user.getId() + " not found");
     }
 

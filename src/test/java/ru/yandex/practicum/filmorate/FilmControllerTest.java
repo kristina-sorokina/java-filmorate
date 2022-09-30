@@ -16,19 +16,18 @@ public class FilmControllerTest {
 
     @Test
     void update() throws ValidationException, ResourceNotFoundException {
-        Film film = Film.builder()
-                .name("Film name")
-                .description("Film description")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(1)
-                .build();
-        Film updatedFilm = Film.builder()
-                .id(1)
-                .name("Film updated name")
-                .description("Film updated description")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(2)
-                .build();
+        Film film = new Film();
+        film.setName("Film name");
+        film.setDescription("Film description");
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        film.setDuration(1);
+
+        Film updatedFilm = new Film();
+        updatedFilm.setId(1);
+        updatedFilm.setName("Film updated name");
+        updatedFilm.setDescription("Film updated description");
+        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 28));
+        updatedFilm.setDuration(2);
 
         filmController.addFilm(film);
         filmController.updateFilm(updatedFilm);
@@ -40,20 +39,20 @@ public class FilmControllerTest {
 
     @Test
     void updateWithUnknownId() throws ValidationException {
-        Film film = Film.builder()
-                .name("Film name")
-                .description("Film description")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(1)
-                .build();
+        Film film = new Film();
+        film.setName("Film name");
+        film.setDescription("Film description");
+        film.setReleaseDate(LocalDate.of(1895, 12, 28));
+        film.setDuration(1);
         filmController.addFilm(film);
-        Film updatedFilm = Film.builder()
-                .id(222)
-                .name("Film updated name")
-                .description("Film updated description")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(1)
-                .build();
+
+        Film updatedFilm = new Film();
+        updatedFilm.setId(222);
+        updatedFilm.setName("Film updated name");
+        updatedFilm.setDescription("Film updated description");
+        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 28));
+        updatedFilm.setDuration(2);
+
         assertThrows(ResourceNotFoundException.class, () -> filmController.updateFilm(updatedFilm), "Film with id " + film.getId() + " not found");
     }
 }

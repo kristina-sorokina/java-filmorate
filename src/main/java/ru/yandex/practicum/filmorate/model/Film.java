@@ -9,7 +9,6 @@ import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 
 @Data
-@Builder
 public class Film {
     private int id;
     @NotNull
