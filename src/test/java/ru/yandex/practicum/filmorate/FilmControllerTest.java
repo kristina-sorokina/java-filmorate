@@ -125,29 +125,13 @@ public class FilmControllerTest {
         assertEquals(0, violations.size());
     }
 
-    @Test
-    public void checkEarlierFilmReleaseDate() {
-        Film testFilm = getTestFilm();
-        testFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.createFilm(testFilm);
-        });
-        assertEquals("Film release date cannot be earlier then 1895-12-28", exception.getMessage());
-    }
 
-    @Test
-    public void checkNullFilm() {
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.createFilm(null);
-        });
-        assertEquals("Request body cannot be empty", exception.getMessage());
-    }
 
     private Film getTestFilm() {
-        Film testFilm = new Film();
-        testFilm.setName("Name 1");
-        testFilm.setDescription("Description 1");
+        Film testFilm = new Film(); // приемлемые значения
+        testFilm.setName("Имя 1");
+        testFilm.setDescription("Описание 1");
         testFilm.setReleaseDate(LocalDate.now());
         testFilm.setDurationMin(100);
         return testFilm;

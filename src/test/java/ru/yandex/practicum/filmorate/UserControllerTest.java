@@ -94,16 +94,6 @@ public class UserControllerTest {
         }
     }
 
-    @Test
-    public void checkLoginWithSpace() {
-        User testUser = getTestUser();
-        testUser.setLogin("user login");
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userController.createUser(testUser);
-        });
-        assertEquals("Login cannot be empty or cannot contain whitespaces", exception.getMessage());
-    }
 
     @Test
     public void checkNullName() throws ValidationException {
@@ -124,19 +114,37 @@ public class UserControllerTest {
     }
 
     @Test
-    public void checkNullUser() {
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userController.createUser(null);
-        });
-        assertEquals("Request body cannot be empty", exception.getMessage());
+    public void checkPresentBirthday() {
+        User testUser = getTestUser();
+        testUser.setBirthday(LocalDate.now());
+
+        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<User> violation : violations) {
+            assertEquals("должно содержать прошедшую дату", violation.getMessage());
+            assertEquals("birthday", violation.getPropertyPath().toString());
+        }
+    }
+
+    @Test
+    public void checkFutureBirthday() {
+        User testUser = getTestUser();
+        testUser.setBirthday(LocalDate.now().plusMonths(1));
+
+        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<User> violation : violations) {
+            assertEquals("должно содержать прошедшую дату", violation.getMessage());
+            assertEquals("birthday", violation.getPropertyPath().toString());
+        }
     }
 
     private User getTestUser() {
-        User testUser = new User();
-        testUser.setName("Name 1");
+        User testUser = new User(); // приемлемые значения
+        testUser.setName("Имя 1");
         testUser.setBirthday(LocalDate.of(1999, Month.JUNE, 17));
-        testUser.setEmail("test@ya.ru");
-        testUser.setLogin("user_login");
+        testUser.setEmail("i.e.pavlov@ya.ru");
+        testUser.setLogin("oh_pavlov");
         return testUser;
     }
 }
