@@ -21,22 +21,22 @@ public class UserService {
     }
 
     public User create(User user) {
-        log.info("Creating user: {}", user);
+        log.info("Создание пользователя: {}", user);
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        log.info("Updating user: {}", user);
+        log.info("Обновление пользователя: {}", user);
         return userStorage.update(user);
     }
 
     public User get(long id) {
-        log.info("Getting user by id {}", id);
+        log.info("Получение пользователя {}", id);
         return userStorage.get(id);
     }
 
     public List<User> getAll() {
-        log.info("Getting all users");
+        log.info("Получение всех пользователей");
         return userStorage.getAll();
     }
 

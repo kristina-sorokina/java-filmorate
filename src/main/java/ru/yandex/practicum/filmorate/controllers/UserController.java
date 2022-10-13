@@ -82,15 +82,15 @@ public class UserController {
 
     private void validateUser(User user) {
         if (user == null) {
-            log.error("Request body cannot be empty (User object required)");
-            throw new ValidationException("Request body cannot be empty");
+            log.error("Тело запроса пустое (должен быть объект User)");
+            throw new ValidationException("Тело запроса пустое (должен быть объект User)");
         }
         if (user.getLogin().contains(" ")) {
-            log.error("Login cannot be empty or cannot contain whitespaces: {}", user);
-            throw new ValidationException("Login cannot be empty or cannot contain whitespaces");
+            log.error("Логин содержит пробелы: {}", user);
+            throw new ValidationException("Логин содержит пробелы!");
         }
         if (user.getName() == null || user.getName().isEmpty()) {
-            log.info("Empty user name replaced with login: {}", user.getLogin());
+            log.info("Имя пустое -> проставляем логин: {}", user.getLogin());
             user.setName(user.getLogin());
         }
     }

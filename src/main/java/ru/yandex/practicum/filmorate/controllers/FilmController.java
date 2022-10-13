@@ -79,12 +79,12 @@ public class FilmController {
 
     private void validateFilm(Film film) {
         if (film == null) {
-            log.error("Request body cannot be empty (Film object required)");
-            throw new ValidationException("Request body cannot be empty");
+            log.error("Тело запроса пустое (должен быть объект Film)");
+            throw new ValidationException("Тело запроса пустое (должен быть объект Film)");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
-            log.error("Film release date cannot be earlier then 1895-12-28: {}", film);
-            throw new ValidationException("Film release date cannot be earlier then 1895-12-28");
+            log.error("Дата релиза не прошла валидацию: {}", film);
+            throw new ValidationException("Дата релиза не прошла валидацию!");
         }
     }
 }

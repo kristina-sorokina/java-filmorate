@@ -94,6 +94,16 @@ public class UserControllerTest {
         }
     }
 
+    @Test
+    public void checkLoginWithSpace() {
+        User testUser = getTestUser();
+        testUser.setLogin("oh pavlov");
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            userController.createUser(testUser);
+        });
+        assertEquals("Логин содержит пробелы!", exception.getMessage());
+    }
 
     @Test
     public void checkNullName() throws ValidationException {
@@ -137,6 +147,14 @@ public class UserControllerTest {
             assertEquals("должно содержать прошедшую дату", violation.getMessage());
             assertEquals("birthday", violation.getPropertyPath().toString());
         }
+    }
+
+    @Test
+    public void checkNullUser() {
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            userController.createUser(null);
+        });
+        assertEquals("Тело запроса пустое (должен быть объект User)", exception.getMessage());
     }
 
     private User getTestUser() {

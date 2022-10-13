@@ -125,8 +125,24 @@ public class FilmControllerTest {
         assertEquals(0, violations.size());
     }
 
+    @Test
+    public void checkEarlierFilmReleaseDate() {
+        Film testFilm = getTestFilm();
+        testFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
 
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            filmController.createFilm(testFilm);
+        });
+        assertEquals("Дата релиза не прошла валидацию!", exception.getMessage());
+    }
 
+    @Test
+    public void checkNullFilm() {
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            filmController.createFilm(null);
+        });
+        assertEquals("Тело запроса пустое (должен быть объект Film)", exception.getMessage());
+    }
 
     private Film getTestFilm() {
         Film testFilm = new Film(); // приемлемые значения

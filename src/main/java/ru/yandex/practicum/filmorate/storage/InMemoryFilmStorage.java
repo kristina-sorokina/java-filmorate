@@ -33,7 +33,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            log.error("Attempt to update film with non existent id: {}", film.getId());
+            log.error("Попытка обновления фильма с несуществующим id: {}", film.getId());
             throw new FilmNotFoundException(film.getId());
         }
         films.put(film.getId(), film);

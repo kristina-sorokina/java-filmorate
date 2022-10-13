@@ -25,22 +25,22 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        log.info("Creating film: {}", film);
+        log.info("Создание фильма: {}", film);
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
-        log.info("Updating film: {}", film);
+        log.info("Обновление фильма: {}", film);
         return filmStorage.update(film);
     }
 
     public List<Film> getAll() {
-        log.info("Getting all films");
+        log.info("Получение всех фильмов");
         return filmStorage.getAll();
     }
 
     public Film get(long id) {
-        log.info("Getting film by id {}", id);
+        log.info("Получение фильма {}", id);
         return filmStorage.get(id);
     }
     public List<Film> getPopularFilms(int count) {

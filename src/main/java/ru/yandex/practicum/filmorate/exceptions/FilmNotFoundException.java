@@ -9,6 +9,6 @@ public class FilmNotFoundException extends RuntimeException {
     }
 
     public FilmNotFoundException(long id) {
-        super("Film not found: id = " + id);
+        super("Фильм не найден: id = " + id);
     }
 }

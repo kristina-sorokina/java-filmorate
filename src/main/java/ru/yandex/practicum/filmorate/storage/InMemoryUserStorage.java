@@ -33,7 +33,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
-            log.error("Attempt to update user with non existent id: {}", user.getId());
+            log.error("Попытка обновления пользователя с несуществующим id: {}", user.getId());
             throw new UserNotFoundException(user.getId());
         }
         users.put(user.getId(), user);
