@@ -1,75 +1,90 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Month;
 import java.util.List;
-import java.util.Map;
 
-@RestController
-@RequestMapping(path = "/films")
 @Slf4j
+@RestController
+@RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private static final LocalDate FILM_BIRTHDAY = LocalDate.of(1895, 12, 28);
-    private int idGenerator = 0;
+    private final FilmService filmService;
 
-    @GetMapping
-    public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) throws ValidationException {
-        validate(film);
-        film.setId(++idGenerator);
-        films.put(film.getId(), film);
-        log.info("Film added: {}", film);
-        return film;
+    @ResponseStatus(value = HttpStatus.OK)
+    public Film createFilm(@Valid @RequestBody Film film) {
+        log.info("/films (POST): {}", film);
+        validateFilm(film);
+        return filmService.create(film);
+    }
+
+    @GetMapping
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Film> getFilms() {
+        log.info("/films (GET)");
+        return filmService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Film getFilm(@PathVariable("id") long id) {
+        log.info("/films/{} (GET)", id);
+        return filmService.get(id);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) throws ValidationException, ResourceNotFoundException {
-        if (!films.containsKey(film.getId())) {
-            log.error("Attempt to update movie with non-existent id: {}", film.getId());
-            throw new ResourceNotFoundException("Film with id " + film.getId() + " not found");
-        }
-        validate(film);
-        films.put(film.getId(), film);
-        log.info("Film updated: {}", film);
-        return film;
+    @ResponseStatus(value = HttpStatus.OK)
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        log.info("/films (PUT): {}", film);
+        validateFilm(film);
+        return filmService.update(film);
     }
 
-    private void validate(Film film) throws ValidationException {
+    @PutMapping("/{id}/like/{userId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void like(@PathVariable("id") long id,
+                     @PathVariable("userId") long userId) {
+        log.info("/films/{}/like/{} (PUT)", id, userId);
+        filmService.like(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void unlike(@PathVariable("id") long id,
+                       @PathVariable("userId") long userId) {
+        log.info("/films/{}/like/{} (DELETE)", id, userId);
+        filmService.unlike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Film> getPopular(@RequestParam(value = "count", defaultValue = "10") int count) {
+        log.info("/films/popular?count={} (GET)", count);
+        return filmService.getPopularFilms(count);
+    }
+
+    private void validateFilm(Film film) {
         if (film == null) {
             log.error("Request body cannot be empty (Film object required)");
             throw new ValidationException("Request body cannot be empty");
         }
-
-        if (film.getName().isBlank()) {
-            log.error("Film name cannot be empty");
-            throw new ValidationException("Film name cannot be empty");
-        }
-
-        if (film.getDescription().length() > 200) {
-            log.error("Film description cannot be more then 200");
-            throw new ValidationException("Film description cannot be more then 200");
-        }
-
-        if (film.getReleaseDate().isBefore(FILM_BIRTHDAY)) {
-            log.error("Film release date cannot be earlier then 1895-12-28");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            log.error("Film release date cannot be earlier then 1895-12-28: {}", film);
             throw new ValidationException("Film release date cannot be earlier then 1895-12-28");
-        }
-
-        if (film.getDuration() <= 0) {
-            log.error("Film duration cannot be negative");
-            throw new ValidationException("Film duration cannot be negative");
         }
     }
 }

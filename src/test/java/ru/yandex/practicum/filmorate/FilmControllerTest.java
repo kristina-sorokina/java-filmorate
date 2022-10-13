@@ -1,58 +1,169 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.ResourceNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 public class FilmControllerTest {
-    FilmController filmController = new FilmController();
+    private final FilmController filmController;
+    private Validator validator;
 
-    @Test
-    void update() throws ValidationException, ResourceNotFoundException {
-        Film film = new Film();
-        film.setName("Film name");
-        film.setDescription("Film description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        film.setDuration(1);
+    @Autowired
+    public FilmControllerTest(FilmController filmController) {
+        this.filmController = filmController;
+    }
 
-        Film updatedFilm = new Film();
-        updatedFilm.setId(1);
-        updatedFilm.setName("Film updated name");
-        updatedFilm.setDescription("Film updated description");
-        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 28));
-        updatedFilm.setDuration(2);
-
-        filmController.addFilm(film);
-        filmController.updateFilm(updatedFilm);
-        Film savedFilm = filmController.getFilms().get(0);
-
-        assertEquals(1, filmController.getFilms().size(), "Number of films in not equal");
-        assertEquals(updatedFilm, savedFilm, "Film is not equal");
+    @BeforeEach
+    public void beforeEach() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
     }
 
     @Test
-    void updateWithUnknownId() throws ValidationException {
-        Film film = new Film();
-        film.setName("Film name");
-        film.setDescription("Film description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 28));
-        film.setDuration(1);
-        filmController.addFilm(film);
+    public void checkNullFilmName() {
+        Film testFilm = getTestFilm();
+        testFilm.setName(null);
 
-        Film updatedFilm = new Film();
-        updatedFilm.setId(222);
-        updatedFilm.setName("Film updated name");
-        updatedFilm.setDescription("Film updated description");
-        updatedFilm.setReleaseDate(LocalDate.of(1895, 12, 28));
-        updatedFilm.setDuration(2);
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(2, violations.size());
+        for (ConstraintViolation<Film> violation : violations) {
+            if (violation.getMessageTemplate().equals("{javax.validation.constraints.NotNull.message}")) {
+                assertEquals("не должно равняться null", violation.getMessage());
+                assertEquals("name", violation.getPropertyPath().toString());
+            }
+            if (violation.getMessageTemplate().equals("{javax.validation.constraints.NotBlank.message}")) {
+                assertEquals("не должно быть пустым", violation.getMessage());
+                assertEquals("name", violation.getPropertyPath().toString());
+            }
+        }
+    }
 
-        assertThrows(ResourceNotFoundException.class, () -> filmController.updateFilm(updatedFilm), "Film with id " + film.getId() + " not found");
+    @Test
+    public void checkEmptyFilmName() {
+        Film testFilm = getTestFilm();
+        testFilm.setName("");
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<Film> violation : violations) {
+            assertEquals("не должно быть пустым", violation.getMessage());
+            assertEquals("name", violation.getPropertyPath().toString());
+        }
+    }
+
+    @Test
+    public void check200SymbolsFilmDescription() {
+        Film testFilm = getTestFilm();
+        String descriptionWithValidLength = getStringOf200Characters();
+        testFilm.setDescription(descriptionWithValidLength);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    public void checkMoreThan200SymbolsFilmDescription() {
+        Film testFilm = getTestFilm();
+        String descriptionWithInvalidLength = getStringOf201Characters();
+        testFilm.setDescription(descriptionWithInvalidLength);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<Film> violation : violations) {
+            assertEquals("размер должен находиться в диапазоне от 0 до 200", violation.getMessage());
+            assertEquals("description", violation.getPropertyPath().toString());
+        }
+    }
+
+    @Test
+    public void checkNegativeFilmDuration() {
+        Film testFilm = getTestFilm();
+        testFilm.setDurationMin(-1);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<Film> violation : violations) {
+            assertEquals("должно быть больше 0", violation.getMessage());
+            assertEquals("durationMin", violation.getPropertyPath().toString());
+        }
+    }
+
+    @Test
+    public void checkZeroFilmDuration() {
+        Film testFilm = getTestFilm();
+        testFilm.setDurationMin(0);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(1, violations.size());
+        for (ConstraintViolation<Film> violation : violations) {
+            assertEquals("должно быть больше 0", violation.getMessage());
+            assertEquals("durationMin", violation.getPropertyPath().toString());
+        }
+    }
+
+    @Test
+    public void checkPositiveFilmDuration() {
+        Film testFilm = getTestFilm();
+        testFilm.setDurationMin(1);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(testFilm);
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    public void checkEarlierFilmReleaseDate() {
+        Film testFilm = getTestFilm();
+        testFilm.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            filmController.createFilm(testFilm);
+        });
+        assertEquals("Film release date cannot be earlier then 1895-12-28", exception.getMessage());
+    }
+
+    @Test
+    public void checkNullFilm() {
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            filmController.createFilm(null);
+        });
+        assertEquals("Request body cannot be empty", exception.getMessage());
+    }
+
+    private Film getTestFilm() {
+        Film testFilm = new Film();
+        testFilm.setName("Name 1");
+        testFilm.setDescription("Description 1");
+        testFilm.setReleaseDate(LocalDate.now());
+        testFilm.setDurationMin(100);
+        return testFilm;
+    }
+
+    private String getStringOf200Characters() {
+        return "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789";
+    }
+
+    private String getStringOf201Characters() {
+        return "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" +
+                "0123456789" + "0123456789" + "0123456789" + "0123456789" + "0123456789" + "!";
     }
 }
