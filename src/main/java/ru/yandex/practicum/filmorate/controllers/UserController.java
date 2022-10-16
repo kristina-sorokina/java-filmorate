@@ -1,72 +1,97 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ResourceNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
-@RestController
-@RequestMapping(path = "/users")
 @Slf4j
+@RestController
+@RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int idGenerator = 0;
-
-
-    @GetMapping
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+    private final UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) throws ValidationException {
-        validate(user);
-        user.setId(++idGenerator);
-        if(user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        users.put(user.getId(), user);
-        log.info("User added: {}", user);
-        return user;
+    @ResponseStatus(value = HttpStatus.OK)
+    public User createUser(@Valid @RequestBody User user) {
+        log.info("/users (POST): {}", user);
+        validateUser(user);
+        return userService.create(user);
+    }
+
+    @GetMapping
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<User> getUsers() {
+        log.info("/users (GET)");
+        return userService.getAll();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public User getUser(@PathVariable("id") long id) {
+        log.info("/users/{} (GET)", id);
+        return userService.get(id);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) throws ValidationException, ResourceNotFoundException {
-        if (!users.containsKey(user.getId())) {
-            log.error("Attempt to update user with non-existent id: {}", user.getId());
-            throw new ResourceNotFoundException("User with id " + user.getId() + " not found");
-        }
-        validate(user);
-        users.put(user.getId(), user);
-        return user;
+    @ResponseStatus(value = HttpStatus.OK)
+    public User updateUser(@Valid @RequestBody User user) {
+        log.info("/users (PUT): {}", user);
+        validateUser(user);
+        return userService.update(user);
+    }
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") long id) {
+        log.info("/users/{}/friends (GET)", id);
+        return userService.getFriends(id);
     }
 
-    private void validate(User user) throws ValidationException {
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") long id,
+                                 @PathVariable("otherId") long otherId) {
+        log.info("/users/{}/friends/common/{} (GET)", id, otherId);
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void makeFriends(@PathVariable("id") long id,
+                            @PathVariable("friendId") long friendId) {
+        log.info("/users/{}/friends/{} (PUT)", id, friendId);
+        userService.makeFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void stopBeingFriends(@PathVariable("id") long id,
+                                 @PathVariable("friendId") long friendId) {
+        log.info("/users/{}/friends/{} (DELETE)", id, friendId);
+        userService.stopBeingFriends(id, friendId);
+    }
+
+
+    private void validateUser(User user) {
         if (user == null) {
-            log.error("Request body cannot be empty (User object required)");
-            throw new ValidationException("Request body cannot be empty");
+            log.error("Тело запроса пустое (должен быть объект User)");
+            throw new ValidationException("Тело запроса пустое (должен быть объект User)");
         }
-
-        if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            log.error("Email name cannot be empty and must contain @");
-            throw new ValidationException("Email name cannot be empty and must contain @");
+        if (user.getLogin().contains(" ")) {
+            log.error("Логин содержит пробелы: {}", user);
+            throw new ValidationException("Логин содержит пробелы!");
         }
-
-        if (user.getLogin() == null || user.getLogin().contains(" ")) {
-            log.error("Login cannot be empty or cannot contain whitespaces");
-            throw new ValidationException("Login cannot be empty or cannot contain whitespaces");
-        }
-
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("User birthday cannot be in the future");
-            throw new ValidationException("User birthday cannot be in the future");
+        if (user.getName() == null || user.getName().isEmpty()) {
+            log.info("Имя пустое -> проставляем логин: {}", user.getLogin());
+            user.setName(user.getLogin());
         }
     }
 }
