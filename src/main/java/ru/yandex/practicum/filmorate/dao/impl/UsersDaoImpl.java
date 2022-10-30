@@ -32,13 +32,13 @@ public class UsersDaoImpl implements UsersDao {
                 "VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update((connection) -> {
-            PreparedStatement ps =
-                    connection.prepareStatement(sqlQuery, new String[] {"id"});
-            ps.setString(1, user.getEmail());
-            ps.setString(2, user.getLogin());
-            ps.setString(3, user.getName());
-            ps.setDate(4, Date.valueOf(user.getBirthday()));
-            return ps;
+                PreparedStatement ps =
+                        connection.prepareStatement(sqlQuery, new String[] {"id"});
+                ps.setString(1, user.getEmail());
+                ps.setString(2, user.getLogin());
+                ps.setString(3, user.getName());
+                ps.setDate(4, Date.valueOf(user.getBirthday()));
+                return ps;
         }, keyHolder);
         log.info("genereted key: {}", keyHolder.getKey());
         user.setId(keyHolder.getKey().longValue());

@@ -75,7 +75,7 @@ public class UserService {
 
     public List<User> getFriends(long userId) {
         return friendshipDao.getByUserId(userId).stream()
-                .map(friendship -> getFriedFromFriendship(friendship, userId))
+                        .map(friendship -> getFriedFromFriendship(friendship, userId))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

@@ -95,7 +95,7 @@ public class FriendshipDaoImpl implements FriendshipDao {
         String sqlQuery = "SELECT * FROM friendship " +
                 "WHERE active_user_id = ? OR passive_user_id = ?;";
         List<Friendship> friendships = jdbcTemplate.query(sqlQuery,
-                (resultSet, rowId) -> buildFriendship(resultSet), userId, userId);
+                    (resultSet, rowId) -> buildFriendship(resultSet), userId, userId);
         return friendships;
     }
 

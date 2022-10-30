@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controllers;
+package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void unlike(@PathVariable("id") long id,
-                       @PathVariable("userId") long userId) {
+                     @PathVariable("userId") long userId) {
         log.info("/films/{}/like/{} (DELETE)", id, userId);
         filmService.unlike(id, userId);
     }
