@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -24,6 +24,13 @@ public class FilmController {
         this.filmService = filmService;
     }
 
+    @GetMapping
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<Film> getFilms() {
+        log.info("/films (GET)");
+        return filmService.getAll();
+    }
+
     @PostMapping
     @ResponseStatus(value = HttpStatus.OK)
     public Film createFilm(@Valid @RequestBody Film film) {
@@ -32,11 +39,12 @@ public class FilmController {
         return filmService.create(film);
     }
 
-    @GetMapping
+    @PutMapping
     @ResponseStatus(value = HttpStatus.OK)
-    public List<Film> getFilms() {
-        log.info("/films (GET)");
-        return filmService.getAll();
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        log.info("/films (PUT): {}", film);
+        validateFilm(film);
+        return filmService.update(film);
     }
 
     @GetMapping("/{id}")
@@ -44,14 +52,6 @@ public class FilmController {
     public Film getFilm(@PathVariable("id") long id) {
         log.info("/films/{} (GET)", id);
         return filmService.get(id);
-    }
-
-    @PutMapping
-    @ResponseStatus(value = HttpStatus.OK)
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        log.info("/films (PUT): {}", film);
-        validateFilm(film);
-        return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
