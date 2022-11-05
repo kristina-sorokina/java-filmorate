@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.dao.filmgenre;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FilmGenres;
-import ru.yandex.practicum.filmorate.dao.filmgenre.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

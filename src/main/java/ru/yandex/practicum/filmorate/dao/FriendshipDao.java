@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao.friendship;
+package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.Friendship;
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao.likes;
+package ru.yandex.practicum.filmorate.dao;
 
 
 public interface LikesDao {

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao.films;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +11,10 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenres;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.dao.filmgenre.FilmGenreDao;
-import ru.yandex.practicum.filmorate.dao.genres.GenresDao;
-import ru.yandex.practicum.filmorate.dao.mpa.MpaDao;
+import ru.yandex.practicum.filmorate.dao.FilmsDao;
+import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.GenresDao;
+import ru.yandex.practicum.filmorate.dao.MpaDao;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;

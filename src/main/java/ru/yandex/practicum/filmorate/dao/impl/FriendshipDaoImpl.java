@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao.friendship;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FriendshipNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
-import ru.yandex.practicum.filmorate.dao.friendship.FriendshipDao;
+import ru.yandex.practicum.filmorate.dao.FriendshipDao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
