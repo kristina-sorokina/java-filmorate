@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.controllers;
+package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -19,14 +19,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    @ResponseStatus(value = HttpStatus.OK)
-    public User createUser(@Valid @RequestBody User user) {
-        log.info("/users (POST): {}", user);
-        validateUser(user);
-        return userService.create(user);
-    }
-
     @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
     public List<User> getUsers() {
@@ -34,11 +26,12 @@ public class UserController {
         return userService.getAll();
     }
 
-    @GetMapping("/{id}")
+    @PostMapping
     @ResponseStatus(value = HttpStatus.OK)
-    public User getUser(@PathVariable("id") long id) {
-        log.info("/users/{} (GET)", id);
-        return userService.get(id);
+    public User createUser(@Valid @RequestBody User user) {
+        log.info("/users (POST): {}", user);
+        validateUser(user);
+        return userService.create(user);
     }
 
     @PutMapping
@@ -48,19 +41,12 @@ public class UserController {
         validateUser(user);
         return userService.update(user);
     }
-    @GetMapping("/{id}/friends")
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<User> getFriends(@PathVariable("id") long id) {
-        log.info("/users/{}/friends (GET)", id);
-        return userService.getFriends(id);
-    }
 
-    @GetMapping("/{id}/friends/common/{otherId}")
+    @GetMapping("/{id}")
     @ResponseStatus(value = HttpStatus.OK)
-    public List<User> getFriends(@PathVariable("id") long id,
-                                 @PathVariable("otherId") long otherId) {
-        log.info("/users/{}/friends/common/{} (GET)", id, otherId);
-        return userService.getCommonFriends(id, otherId);
+    public User getUser(@PathVariable("id") long id) {
+        log.info("/users/{} (GET)", id);
+        return userService.get(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -79,6 +65,20 @@ public class UserController {
         userService.stopBeingFriends(id, friendId);
     }
 
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") long id) {
+        log.info("/users/{}/friends (GET)", id);
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<User> getFriends(@PathVariable("id") long id,
+                                 @PathVariable("otherId") long otherId) {
+        log.info("/users/{}/friends/common/{} (GET)", id, otherId);
+        return userService.getCommonFriends(id, otherId);
+    }
 
     private void validateUser(User user) {
         if (user == null) {
